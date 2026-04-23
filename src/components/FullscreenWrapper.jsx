@@ -8,6 +8,7 @@ import { useFlipEngine } from '../hooks/useFlipEngine'
 import { useFullscreen } from '../hooks/useFullscreen'
 import { useKeyboard } from '../hooks/useKeyboard'
 import { exportMagazinePdf } from '../utils/pdfExport'
+import { GAME_PAGE_TOKEN } from '../constants/pageTokens'
 
 function useViewport() {
   const [viewport, setViewport] = useState('desktop')
@@ -39,6 +40,7 @@ export default function FullscreenWrapper({ pages }) {
   const [bookHover, setBookHover] = useState(false)
   const [pdfOpen, setPdfOpen] = useState(false)
   const [pdfCur, setPdfCur] = useState(0)
+  const [pdfTotal, setPdfTotal] = useState(0)
 
   const engine = useFlipEngine(pages.length, viewport)
   const barVisible = useControlBarVisibility(bookHover, isFullscreen)
@@ -47,11 +49,13 @@ export default function FullscreenWrapper({ pages }) {
   const onZoomOut = useCallback(() => setZoom((z) => Math.max(80, z - 8)), [])
 
   const runPdf = useCallback(async () => {
+    const exportablePages = pages.filter((name) => name !== GAME_PAGE_TOKEN)
     setPdfOpen(true)
     setPdfCur(0)
+    setPdfTotal(exportablePages.length)
     try {
       await exportMagazinePdf({
-        pages,
+        pages: exportablePages,
         onProgress: (cur) => setPdfCur(cur),
       })
     } catch {
@@ -158,7 +162,7 @@ export default function FullscreenWrapper({ pages }) {
         isFullscreen={isFullscreen}
       />
 
-      <PdfModal open={pdfOpen} current={pdfCur} total={pages.length} />
+      <PdfModal open={pdfOpen} current={pdfCur} total={pdfTotal} />
     </div>
   )
 }
