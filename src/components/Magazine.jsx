@@ -3,6 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
 import FlipEngine from './FlipEngine'
 import CoverHint from './CoverHint'
+import GamePage from './GamePage'
+import { GAME_PAGE_TOKEN } from '../constants/pageTokens'
 import { createSpreadCanvasTexture } from '../utils/spreadTexture'
 
 const BOOK_SPREAD_W = 900
@@ -27,6 +29,7 @@ const linen =
 
 function pageSrc(pages, i) {
   if (i == null || i < 0 || i >= pages.length) return null
+  if (pages[i] === GAME_PAGE_TOKEN) return null
   return `/slides/${pages[i]}`
 }
 
@@ -40,6 +43,7 @@ function PageFace({
   shadowSide,
   rounded = 'outer',
   linenOverlay,
+  customContent,
 }) {
   const isRight = side === 'right'
   const allRound = rounded === 'all'
@@ -60,7 +64,9 @@ function PageFace({
           : 'inset -8px 0 14px -8px rgba(0,0,0,0.18)',
       }}
     >
-      {src ? (
+      {customContent ? (
+        <div className="absolute inset-0">{customContent}</div>
+      ) : src ? (
         <img src={src} alt="" className="absolute inset-0 h-full w-full object-cover" draggable={false} />
       ) : (
         <div
@@ -250,6 +256,9 @@ export default function Magazine({ pages, engine, onBookHover, viewport, tabletS
 
   const leftSrc = pageSrc(pages, leftIdx)
   const rightSrc = pageSrc(pages, rightIdx)
+  const isGamePage = useCallback((idx) => idx != null && pages[idx] === GAME_PAGE_TOKEN, [pages])
+  const leftGame = isGamePage(leftIdx)
+  const rightGame = isGamePage(rightIdx)
 
   const stackRightCount = useMemo(() => {
     if (isMobile) return 0
@@ -488,6 +497,7 @@ export default function Magazine({ pages, engine, onBookHover, viewport, tabletS
                   h={dimMobile.h}
                   cornerLift={false}
                   cornerLiftSide={null}
+                  customContent={leftGame ? <GamePage /> : null}
                   shadowSide={
                     flipping
                       ? {
@@ -529,6 +539,7 @@ export default function Magazine({ pages, engine, onBookHover, viewport, tabletS
                     side="right"
                     w={COVER_W}
                     h={COVER_H}
+                    customContent={leftGame ? <GamePage /> : null}
                     cornerLift={Boolean(cornerLiftSide)}
                     cornerLiftSide={cornerLiftSide}
                     shadowSide={shadowCover}
@@ -583,6 +594,7 @@ export default function Magazine({ pages, engine, onBookHover, viewport, tabletS
                     side="left"
                     w={COVER_W}
                     h={COVER_H}
+                    customContent={leftGame ? <GamePage /> : null}
                     cornerLift={Boolean(cornerLiftSide)}
                     cornerLiftSide={cornerLiftSide}
                     shadowSide={shadowCover}
@@ -618,6 +630,7 @@ export default function Magazine({ pages, engine, onBookHover, viewport, tabletS
                     side="left"
                     w={dimSpread.w}
                     h={dimSpread.h}
+                    customContent={leftGame ? <GamePage /> : null}
                     cornerLift={Boolean(cornerLiftSide)}
                     cornerLiftSide={cornerLiftSide}
                     shadowSide={shadowLeft}
@@ -651,6 +664,7 @@ export default function Magazine({ pages, engine, onBookHover, viewport, tabletS
                     side="right"
                     w={dimSpread.w}
                     h={dimSpread.h}
+                    customContent={rightGame ? <GamePage /> : null}
                     cornerLift={Boolean(cornerLiftSide)}
                     cornerLiftSide={cornerLiftSide}
                     shadowSide={shadowRight}
