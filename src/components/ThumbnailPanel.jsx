@@ -1,4 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion'
+import { GAME_PAGE_TOKEN } from '../constants/pageTokens'
 
 export default function ThumbnailPanel({ open, pages, activePredicate, onSelect, onClose }) {
   const n = pages.length
@@ -29,7 +30,7 @@ export default function ThumbnailPanel({ open, pages, activePredicate, onSelect,
             <div className="flex-1 overflow-y-auto px-2 py-2">
               {pages.map((name, idx) => (
                 <button
-                  key={name}
+                  key={`${name}-${idx}`}
                   type="button"
                   onClick={() => onSelect(idx)}
                   className={`relative mb-2 w-full overflow-hidden rounded-md border-2 bg-black/30 transition ${
@@ -46,12 +47,20 @@ export default function ThumbnailPanel({ open, pages, activePredicate, onSelect,
                       Back
                     </span>
                   ) : null}
-                  <img
-                    src={`/slides/${name}`}
-                    alt=""
-                    className="block h-auto w-full object-cover"
-                    loading="lazy"
-                  />
+                  {name === GAME_PAGE_TOKEN ? (
+                    <div className="flex aspect-[3/4] w-full items-center justify-center bg-gradient-to-b from-[#20170f] to-[#0d0906] text-[#c9a84c]">
+                      <span className="text-center text-xs font-semibold uppercase tracking-wider">
+                        Set The Table
+                      </span>
+                    </div>
+                  ) : (
+                    <img
+                      src={`/slides/${name}`}
+                      alt=""
+                      className="block h-auto w-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
                 </button>
               ))}
             </div>
