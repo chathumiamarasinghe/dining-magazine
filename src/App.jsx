@@ -1,13 +1,18 @@
 import { AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import FullscreenWrapper from './components/FullscreenWrapper'
 import LoadingScreen from './components/LoadingScreen'
+import { GAME_PAGE_TOKEN } from './constants/pageTokens'
 import { useManifest } from './hooks/useManifest'
 
 export default function App() {
   const { pages, loading: manifestLoading, error } = useManifest()
   const [loadProgress, setLoadProgress] = useState({ loaded: 0, total: 0 })
   const [imagesReady, setImagesReady] = useState(false)
+  const displayPages = useMemo(
+    () => (pages.length > 0 ? [...pages, GAME_PAGE_TOKEN] : pages),
+    [pages],
+  )
 
   useEffect(() => {
     if (manifestLoading) return
@@ -53,7 +58,7 @@ export default function App() {
         ) : null}
       </AnimatePresence>
 
-      {!showLoader && pages.length > 0 ? <FullscreenWrapper pages={pages} /> : null}
+      {!showLoader && pages.length > 0 ? <FullscreenWrapper pages={displayPages} /> : null}
 
       {!showLoader && pages.length === 0 ? (
         <div className="flex min-h-screen flex-col items-center justify-center px-6 text-center text-white/80">
